@@ -26,4 +26,4 @@ ortalama = toplam / len(liste)
 print(ortalama)
 
     
-    
+    g
