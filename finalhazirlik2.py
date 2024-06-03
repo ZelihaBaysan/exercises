@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import datetime
 
 # Urunler sınıfı
 class Urunler:
@@ -91,3 +90,22 @@ if __name__ == "__main__":
 
     # Sepeti işleme
     process_cart()
+
+    
+    """"""
+Senaryo: Bir online kırtasiyeye giren öğrenciler ihtiyaçlarına göre ürün almaktadırlar. Bu ürünleri alırken reyonlarına göre indirimler
+de sepete yansıtılmaktadır. Kırtasiye indirimleri yaparken 1. 5. 9. Sınıf öğrencilerine ayrıca %20 indirimde uygulamaktadır. Kalem
+reyonundan alınan ürünlerde %5, Boya reyonundan alınan ürünlerde %10, Defter reyonundan alınan ürünlerde %7,5 indirim
+uygulanmaktadır. Ürünler alınırken sınıf nosu, ürünün adı, reyon adı ve fiyatı sisteme Urunler sınıfından(class) nesne türetilerek
+girilmektedir. Ürünün eklenme tarihi sınıf içerisinde kurucu metotda varsayılan 2023 olarak belirlenmelidir. Sisteme girilen ürünler
+veritabanına liste haline dönüştürülerek kaydedilmelidir. Veritabanı adı: Kirtasiye, Tablo adı ise Urunler olmalıdır. Urunler
+tablosundaki alan adları ise tcno, sinifno, ad,reyon,tarih ve fiyat olmalıdır. Sepete atılacak başka bir ürün kalmadığında ise Ürünler
+tablosundaki tüm ürün bilgileri listelenir ve ekrana yazdırılır. Listelenen ürünlerin fiyatları listelenirken indirimler bu aşamada
+hesaplanmalıdır. Ürünler tablosuna kaydedilen ürünlerin indirim sonrası toplam tutarı ise sepet adında yeni bir tabloya eklenmelidir.
+Bu tablodaki alanlar ise tcno, tarih ve toplamtutar olmalıdır.
+
+Soru4: Yukarıdaki senaryoya göre ürünleri veritabanına kaydeden ve ürün kaydetme işlemi tamamlandıktan sonra kaydedilen verileri
+veritabanından çekerek indirimleri hesaplayan ve tekrar sepet tablosuna kaydeden kodu python programlama dilinde yazınız.
+"""
+
+    """
