@@ -1,95 +1,57 @@
-import sqlite3
+import sqlite3 as sql
 
-# Urunler sınıfı
-class Urunler:
-    def __init__(self, tcno, sinifno, ad, reyon, fiyat, tarih='2023'):
-        self.tcno = tcno
-        self.sinifno = sinifno
-        self.ad = ad
-        self.reyon = reyon
-        self.fiyat = fiyat
-        self.tarih = tarih
+class Urun:
+    def __init__(self, ürün_adi, gönderici_adi, yil, alıcı_adı, alici_adres, ürün_tipi="gıda"):
+        self.ürün_tipi = ürün_tipi
+        self.ürün_adi = ürün_adi        
+        self.gönderici = gönderici_adi
+        self.yil = yil
+        self.alıcı_adi = alıcı_adı
+        self.alici_adres = alici_adres
 
-# Veritabanı bağlantısı oluşturma ve tabloları oluşturma
-def create_database():
-    conn = sqlite3.connect('Kirtasiye.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS Urunler
-                 (tcno TEXT, sinifno INTEGER, ad TEXT, reyon TEXT, tarih TEXT, fiyat REAL)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS Sepet
-                 (tcno TEXT, tarih TEXT, toplamtutar REAL)''')
-    conn.commit()
-    conn.close()
+    def kaydol(self):
+        try:
+            # Veritabanına bağlan
+            db = sql.connect("Nakliye.sqlite")
+            cursor = db.cursor()
 
-# Ürünleri veritabanına kaydetme
-def add_urun_to_db(urun):
-    conn = sqlite3.connect('Kirtasiye.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO Urunler (tcno, sinifno, ad, reyon, tarih, fiyat) VALUES (?, ?, ?, ?, ?, ?)",
-              (urun.tcno, urun.sinifno, urun.ad, urun.reyon, urun.tarih, urun.fiyat))
-    conn.commit()
-    conn.close()
+            # Tablo oluşturulur (varsa yeniden oluşturulmaz)
+            query = """
+                CREATE TABLE IF NOT EXISTS Gönderilen (ürün_adi TEXT, gönderici_adi TEXT, yil INTEGER, alıcı_adı TEXT, alici_adres TEXT, ürün_tipi TEXT)
+            """
+            cursor.execute(query)
 
-# İndirim hesaplama fonksiyonu
-def apply_discounts(sinifno, reyon, fiyat):
-    if reyon == 'Kalem':
-        fiyat *= 0.95
-    elif reyon == 'Boya':
-        fiyat *= 0.90
-    elif reyon == 'Defter':
-        fiyat *= 0.925
+            # Bilgileri tabloya ekle
+            query = f"""
+                INSERT INTO Gönderilen (ürün_adi, gönderici_adi, yil, alıcı_adı, alici_adres, ürün_tipi)
+                VALUES ('{self.ürün_adi}', '{self.gönderici}', {self.yil}, '{self.alıcı_adi}', '{self.alici_adres}', '{self.ürün_tipi}')
+            """
+            cursor.execute(query)
+            db.commit()
+            db.close()
 
-    if sinifno in [1, 5, 9]:
-        fiyat *= 0.80
+        except Exception as e:
+            print(f"hata : {e}")
 
-    return fiyat
+def main():
+    counter = 0
+    while True:
+        ürün_adi = input("ürün adi: ")
+        gönderici_adi = input("gönderici adi: ")
+        yil = input("yil giriniz: ")
+        alıcı_adı = input("alici adi giriniz: ")
+        alici_adres = input("alici adres giriniz: ")
 
-# Veritabanından ürün bilgilerini çekme ve indirimleri hesaplayarak sepet tablosuna kaydetme
-def process_cart():
-    conn = sqlite3.connect('Kirtasiye.db')
-    c = conn.cursor()
-    c.execute("SELECT tcno, sinifno, ad, reyon, tarih, fiyat FROM Urunler")
-    urunler = c.fetchall()
-    
-    for urun in urunler:
-        tcno, sinifno, ad, reyon, tarih, fiyat = urun
-        indirimli_fiyat = apply_discounts(sinifno, reyon, fiyat)
-        c.execute("INSERT INTO Sepet (tcno, tarih, toplamtutar) VALUES (?, ?, ?)",
-                  (tcno, tarih, indirimli_fiyat))
-    
-    conn.commit()
-    conn.close()
+        # Urun sınıfından bir örnek oluştur ve kaydol metodu çağır
+        obj = Urun(ürün_adi, gönderici_adi, yil, alıcı_adı, alici_adres)
+        obj.kaydol()
+        
+        counter += 1
+        print(f"gönderilen koli sayisi: {counter}")
 
-# Ürünleri listeden çekme ve yazdırma
-def list_urunler():
-    conn = sqlite3.connect('Kirtasiye.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM Urunler")
-    urunler = c.fetchall()
-    for urun in urunler:
-        tcno, sinifno, ad, reyon, tarih, fiyat = urun
-        indirimli_fiyat = apply_discounts(sinifno, reyon, fiyat)
-        print(f"TC: {tcno}, Sınıf No: {sinifno}, Ad: {ad}, Reyon: {reyon}, Tarih: {tarih}, Fiyat: {indirimli_fiyat:.2f}")
-    conn.close()
-
-# Ana program
 if __name__ == "__main__":
-    create_database()
+    main()
 
-    # Ürün ekleme örnekleri
-    urun1 = Urunler('12345678901', 1, 'Kalem Seti', 'Kalem', 20.0)
-    urun2 = Urunler('12345678902', 5, 'Sulu Boya', 'Boya', 35.0)
-    urun3 = Urunler('12345678903', 9, 'Defter', 'Defter', 15.0)
-
-    add_urun_to_db(urun1)
-    add_urun_to_db(urun2)
-    add_urun_to_db(urun3)
-
-    # Ürünleri listele
-    list_urunler()
-
-    # Sepeti işleme
-    process_cart()
 
     
     """"""
